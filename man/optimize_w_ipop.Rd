@@ -6,33 +6,20 @@
 \usage{
 optimize_w_ipop(
   X,
-  Z,
-  t_max,
-  dr,
-  dt,
+  n_X,
   i_max,
-  target = "X",
   margin.ipop = 1e-04,
   sigf.ipop = 5,
   bound.ipop = 10
 )
 }
 \arguments{
-\item{X}{A numeric matrix of covariates in the target domain. First row is the treated unit,
+\item{X}{A numeric matrix of covariates in the target domain or reference domain. First row is the treated unit,
 remaining rows are control units.}
 
-\item{Z}{A numeric matrix of covariates in the reference domain. First row is the treated unit,
-remaining rows are control units.}
-
-\item{t_max}{Integer.}
-
-\item{dr}{Integer. Number of covariates in the reference domain, used for scaling.}
-
-\item{dt}{Integer. Number of covariates in the target domain, used for scaling.}
+\item{n_X}{Integer. Number of covariates in the target domain or reference domain, used for scaling.}
 
 \item{i_max}{Integer. Total number of units (treated + control).}
-
-\item{target}{Character. Optimization target matrix: \code{"X"} or \code{"Z"}. Default is \code{"X"}.}
 
 \item{margin.ipop}{Numeric. Margin for constraint violation tolerance in \code{ipop}. Default is \code{1e-4}.}
 
@@ -66,6 +53,6 @@ The optimization problem is solved using \code{ipop()} from the \code{kernlab} p
 \examples{
 X <- matrix(rnorm(40), nrow = 4)
 Z <- matrix(rnorm(40), nrow = 4)
-optimize_w_ipop(X, Z, t_max = 10, dr = 10, dt = 10, i_max = 4)
+optimize_w_ipop(X = X, n_X = 4, i_max = 4)
 
 }
