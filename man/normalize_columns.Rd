@@ -2,29 +2,29 @@
 % Please edit documentation in R/data_preprocess.R
 \name{normalize_columns}
 \alias{normalize_columns}
-\title{Normalize Selected Columns Using Min-Max Scaling}
+\title{Normalize Columns Using Min-Max Scaling}
 \usage{
-normalize_columns(data, columns)
+normalize_columns(data, columns = NULL)
 }
 \arguments{
-\item{data}{A data frame containing the columns to be normalized.}
+\item{data}{A numeric vector or a data frame.}
 
-\item{columns}{A vector specifying which columns to normalize.}
+\item{columns}{If \code{data} is a data frame, a character vector specifying which columns to normalize.}
 }
 \value{
-A data frame with the specified columns normalized between 0 and 1.
+A normalized numeric vector (if input is numeric) or a data frame with normalized columns.
 }
 \description{
-This function Applies min-max normalization to specified numeric columns in a data frame.
-It takes a data frame and a vector of column names or indices,
-and applies min-max normalization to those columns, leaving the rest untouched.
-It ensures the result is returned in data frame format.
+This function applies min-max normalization to either a numeric vector or specified numeric columns
+in a data frame. If a numeric vector is provided, it scales the values to the \link{0, 1} range.
+If a data frame and column names are provided, it applies normalization only to those columns.
 }
 \examples{
-df <- data.frame(a = 1:10, b = 11:20, c = letters[1:10])
-normalize_columns(df, c("a", "b"))
+# Normalize vector
+normalize_columns(c(10, 20, 30))
 
-}
-\seealso{
-\code{\link[=min_max_norm]{min_max_norm()}}
+# Normalize selected columns in a data frame
+df <- data.frame(a = 1:5, b = 6:10, c = letters[1:5])
+normalize_columns(df, columns = c("a", "b"))
+
 }

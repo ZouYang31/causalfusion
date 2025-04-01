@@ -7,50 +7,67 @@
 # Data Preprocessing Functions
 # -----------------------------
 
-#' Min-Max Normalization
+#' Normalize Columns Using Min-Max Scaling
 #'
-#' This function applies min-max normalization to a numeric vector, scaling values to the [0, 1] range.
-#' If the input is not numeric, the original input is returned unchanged.
+#' This function applies min-max normalization to either a numeric vector or specified numeric columns
+#' in a data frame. If a numeric vector is provided, it scales the values to the [0, 1] range.
+#' If a data frame and column names are provided, it applies normalization only to those columns.
 #'
-#' @param x A numeric vector to normalize.
+#' @param data A numeric vector or a data frame.
+#' @param columns If `data` is a data frame, a character vector specifying which columns to normalize.
 #'
-#' @return A normalized numeric vector with values between 0 and 1, or the original input if non-numeric.
+#' @return A normalized numeric vector (if input is numeric) or a data frame with normalized columns.
+#'
 #' @examples
-#' min_max_norm(c(10, 20, 30))
-#' min_max_norm(c("a", "b", "c"))  # returns original input
+#' # Normalize vector
+#' normalize_columns(c(10, 20, 30))
+#'
+#' # Normalize selected columns in a data frame
+#' df <- data.frame(a = 1:5, b = 6:10, c = letters[1:5])
+#' normalize_columns(df, columns = c("a", "b"))
+#'
 #' @export
-min_max_norm <- function(x) {
-  if (is.numeric(x)) {
-    (x - min(x, na.rm = TRUE)) / (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))
-  } else {
-    return(x)
+normalize_columns <- function(data, columns = NULL) {
+  # Check for missing inputs
+  if (missing(data) || missing(columns)) {
+    stop("One or more required arguments are missing: 'data' or 'columns'.")
   }
-}
 
+  # Ensure 'data' is a data frame
+  if (!is.data.frame(data)) {
+    stop("'data' must be a data frame.")
+  }
 
-#' Normalize Selected Columns Using Min-Max Scaling
-#'
-#' This function Applies min-max normalization to specified numeric columns in a data frame.
-#' It takes a data frame and a vector of column names or indices,
-#' and applies min-max normalization to those columns, leaving the rest untouched.
-#' It ensures the result is returned in data frame format.
-#'
-#' @param data A data frame containing the columns to be normalized.
-#' @param columns A vector specifying which columns to normalize.
-#'
-#' @return A data frame with the specified columns normalized between 0 and 1.
-#'
-#' @examples
-#' df <- data.frame(a = 1:10, b = 11:20, c = letters[1:10])
-#' normalize_columns(df, c("a", "b"))
-#'
-#' @seealso [min_max_norm()]
-#' @export
-normalize_columns <- function(data, columns) {
-  data[columns] <- as.data.frame(lapply(data[columns], min_max_norm))
+  if (!is.character(columns)) {
+    stop("'covariates' must be a character vector.")
+  }
+
+  # Ensure 'columns' are all present in the data
+  if (!all(columns %in% colnames(data))) {
+    stop("One or more specified columns do not exist in the data.")
+  }
+
+  if (!all(sapply(data[columns], is.numeric))) {
+    stop("All covariate columns must be numeric.")
+  }
+
+  # Check for NA or NaN values
+  if (anyNA(data[columns]) || any(sapply(data[columns], function(col) any(is.nan(col))))) {
+    stop("Missing (NA or NaN) values detected in specified columns. Please impute them before proceeding.")
+  }
+  # Apply min-max normalization
+  for (col in columns) {
+    if (is.numeric(data[[col]])) {
+      min_val <- min(data[[col]], na.rm = TRUE)
+      max_val <- max(data[[col]], na.rm = TRUE)
+      data[[col]] <- (data[[col]] - min_val) / (max_val - min_val)
+    } else {
+      warning(paste("Column", col, "is not numeric and will be left unchanged."))
+    }
+  }
+
   return(data)
 }
-
 #' Reorder Rows to Prioritize a Specific Unit
 #'
 #' This function reorders a data frame so that rows matching a specific pattern in the `unit` column appear first.
@@ -169,8 +186,8 @@ covariates_matrix <- function(data, covariates, colname_unit) {
     stop("'data' must be a data frame.")
   }
 
-  if (!is.list(covariates)) {
-    stop("'covariates' must be a list.")
+  if (!is.character(covariates)) {
+    stop("'covariates' must be a character vector.")
   }
 
   if (!all(sapply(data[covariates], is.numeric))) {
@@ -178,7 +195,7 @@ covariates_matrix <- function(data, covariates, colname_unit) {
   }
 
   # Check for missing (NA) values
-  if (anyNA(data[covariates])) {
+  if (anyNA(data[covariates]) || any(sapply(data[covariates], function(col) any(is.nan(col))))) {
     stop("Missing values detected in covariate columns. Please impute them before proceeding.")
   }
 
