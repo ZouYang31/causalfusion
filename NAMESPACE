@@ -20,4 +20,8 @@ import(dplyr)
 import(ggplot2)
 import(gurobi)
 import(kernlab)
+importFrom(stats,aggregate)
+importFrom(stats,as.formula)
+importFrom(stats,reshape)
 importFrom(scales,alpha)
+
