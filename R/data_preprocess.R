@@ -126,7 +126,7 @@ reorder_unit_first <- function(data, unit_pattern) {
 #'   t3 = c(3, 6)
 #' )
 #' outcome_matrix(df_wide, colname_outcome_var = NULL, colname_unit = NULL)
-#'
+#' @importFrom stats reshape
 #' @export
 outcome_matrix <- function(data, colname_outcome_var = NULL, colname_unit = NULL, colname_time = NULL){
 
@@ -176,6 +176,7 @@ outcome_matrix <- function(data, colname_outcome_var = NULL, colname_unit = NULL
 #' covariates <- c("median_income", "median_age", "proportion")
 #' covariates_matrix(test_data, covariates, "unit")
 #'
+#' @importFrom stats as.formula aggregate reshape
 #' @export
 covariates_matrix <- function(data, covariates, colname_unit) {
   if (missing(data) || missing(covariates) || missing(colname_unit)) {
@@ -242,7 +243,6 @@ generate_b_list <- function(step = 0.01, min_value = 0.01) {
 
   return(B)
 }
-
 
 
 

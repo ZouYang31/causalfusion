@@ -49,5 +49,4 @@ df_wide <- data.frame(
   t3 = c(3, 6)
 )
 outcome_matrix(df_wide, colname_outcome_var = NULL, colname_unit = NULL)
-
 }
