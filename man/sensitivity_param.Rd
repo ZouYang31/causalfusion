@@ -6,6 +6,7 @@
 \usage{
 sensitivity_param(
   eta_values,
+  B,
   F,
   Y,
   X,
@@ -21,6 +22,8 @@ sensitivity_param(
 \arguments{
 \item{eta_values}{A numeric vector of candidate values for both \code{eta_X} and \code{eta_Z}.
 The function evaluates all combinations via a grid search.}
+
+\item{B}{A list of combinations of a budgeting vector.}
 
 \item{F}{A numeric matrix of outcomes in the reference domain. The first row is the treated unit.}
 
@@ -84,5 +87,5 @@ result <- sensitivity_param(
 
 }
 \seealso{
-\code{\link{find_best_B}}, \code{\link{synthetic_ett}}
+\code{\link{find_best_B}}, \code{\link{sc_ett}}
 }

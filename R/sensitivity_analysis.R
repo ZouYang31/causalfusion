@@ -8,6 +8,7 @@
 #'
 #' @param eta_values A numeric vector of candidate values for both \code{eta_X} and \code{eta_Z}.
 #'        The function evaluates all combinations via a grid search.
+#' @param B A list of combinations of a budgeting vector.
 #' @param F A numeric matrix of outcomes in the reference domain. The first row is the treated unit.
 #' @param Y A numeric matrix of outcomes in the target domain.
 #' @param X A numeric matrix of covariates in the target domain.
@@ -34,7 +35,7 @@
 #' the function quantifies how sensitive the synthetic control results are to the tightness of the
 #' optimization constraints.
 #'
-#' @seealso \code{\link{find_best_B}}, \code{\link{synthetic_ett}}
+#' @seealso \code{\link{find_best_B}}, \code{\link{sc_ett}}
 #'
 #' @examples
 #' \dontrun{
@@ -56,7 +57,7 @@
 #'
 #' @export
 
-sensitivity_param <- function(eta_values ,
+sensitivity_param <- function(eta_values, B,
                               F, Y, X, Z,
                               t_max, dr, dt, i_max,
                               NSE_Z_baseline,
@@ -100,7 +101,7 @@ sensitivity_param <- function(eta_values ,
 
     # Call the function with different eta_X and eta_Z values
     b_list <- find_best_B(
-      B,
+      B = B,
       F_treated = F_treated,
       F_control = F_control,
       X_treated = X_treated,
@@ -126,7 +127,7 @@ sensitivity_param <- function(eta_values ,
     diff_outcome_tar <- abs(mean(Y_treated) - mean(w %*% Y_control))
 
     # Causal effect
-    ett_synthetic <- synthetic_ett(Y_treated, Y = Y, w = w, J = J)
+    ett_synthetic <- sc_ett(Y_treated, Y = Y, w = w, J = J)
 
     # Store results
     results$diff_outcome_ref[i] <- round(diff_outcome_ref, 3)
