@@ -2,23 +2,32 @@
 
 #' Placebo Tests for Synthetic Control Data Fusion Method
 #'
-#' This function runs placebo tests by treating each control unit as if it were the treated unit
-#' and estimating the synthetic control weights. It compares the actual outcome against the
-#' synthetic counterfactual outcome for both the reference outcome \code{F} and the target outcome \code{Y}.
+#' This function performs placebo tests by treating each control unit as a pseudo-treated unit and estimating
+#' its synthetic control using all other units. It then compares the observed and synthetic outcomes to
+#' compute placebo causal effects in both the reference domain (\code{F}) and the target domain (\code{Y}).
+#' Results are returned as two customizable ggplot objects.
 #'
-#' @param F A numeric matrix representing the reference domain outcome for treated and control units.
-#'          The first row is the treated unit, and the rest are control units.
-#' @param Y A numeric matrix representing the target domain outcome.
-#' @param t_max Integer. Number of pre-treatment time periods for \code{F}.
-#' @param s_max Integer. Number of post-treatment time periods for \code{Y}.
-#' @param i_max Integer. Total number of units.
+#' @param F A numeric matrix for the reference domain outcome. Rows = units; columns = time periods.
+#'          The first row is the treated unit.
+#' @param Y A numeric matrix for the target domain outcome (same structure as \code{F}).
+#' @param t_max Integer. Number of time periods in the reference domain (\code{F}).
+#' @param s_max Integer. Number of time periods in the target domain (\code{Y}).
+#' @param i_max Integer. Total number of units (treated + controls).
 #' @param w A numeric weight vector representing the synthetic control weights for the treated unit.
-#' @param X A numeric matrix of covariates in the target domain.
-#' @param Z A numeric matrix of covariates in the reference domain.
+#' @param X A matrix of covariates in the target domain.
+#' @param Z A matrix of covariates in the reference domain.
 #' @param dr Integer. Number of covariates in \code{Z}.
 #' @param dt Integer. Number of covariates in \code{X}.
 #' @param eta_Z Numeric. Default is \code{0.1}.
 #' @param eta_X Numeric. Default is \code{0.1}.
+#' @param Ylab Character string. Y-axis label for both plots. Default is \code{"Causal Effect"}.
+#' @param Xlab Character string. X-axis label for both plots. Default is \code{"Time"}.
+#' @param ref_lim Numeric vector of length 2. Y-axis limits for the reference domain plot (\code{plot_F}).
+#'                Default is \code{c(-0.1, 0.1)}.
+#' @param tar_lim Numeric vector of length 2. Y-axis limits for the target domain plot (\code{plot_Y}).
+#'                Default is \code{c(-0.5, 0.5)}.
+#' @param Tunit_lab Character string. Legend label for the treated unit. Default is \code{"Target Unit"}.
+#' @param Cunit_lab Character string. Legend label for the control units. Default is \code{"Control Units"}.
 #'
 #' @return A list containing:
 #' \describe{
@@ -28,21 +37,42 @@
 #' The plots visualize the difference between observed and synthetic outcomes across placebo-treated control units.
 #'
 #' @details
-#' For each control unit, the function constructs a synthetic version of that unit using the other control units.
-#' It calculates the synthetic control effect as the difference between observed and synthetic outcomes.
-#' These placebo effects are plotted alongside the actual treated unit’s effect to assess significance.
-#' Synthetic control weights are optimized using `optimize_w_ipop()` and `find_best_B()` with constraints on covariate fit.
+#' This function uses synthetic control methods to estimate placebo effects by rotating treatment assignment
+#' across control units. It calculates the baseline normalized squared error (NSE) using covariate fit in both
+#' X and Z domains, then uses those baselines with slack parameters (\code{eta_X}, \code{eta_Z}) to optimize
+#' weights and compare effects. The resulting placebo plots visualize the effect trajectories across units.
+#'
+#' The treated unit's effect is plotted in black, and control units are shown in grey.
+#' Labels and y-axis ranges are fully customizable via function arguments.
+#'
+#' @seealso \code{\link{optimize_w_ipop}}, \code{\link{find_best_B}}, \code{\link{NSE_x}}
+#'
+#' @examples
+#' \dontrun{
+#' placebo_result <- placebo_test(F = F_matrix, Y = Y_matrix,
+#'                                t_max = 10, s_max = 10, i_max = 20,
+#'                                w = w_star, X = X_matrix, Z = Z_matrix,
+#'                                dr = 5, dt = 5,
+#'                                eta_Z = 0.1, eta_X = 0.1,
+#'                                Ylab = "Effect", Xlab = "Time",
+#'                                Tunit_lab = "Treated", Cunit_lab = "Controls")
+#' print(placebo_result$plot_F)
+#' print(placebo_result$plot_Y)
+#' }
 #'
 #' @import ggplot2
-#' @importFrom scales alpha
-#' @importFrom utils head
-#' @importFrom stats reshape
 #' @export
 
 # ## ----         placebo test -------------  ##
 placebo_test<- function(F, Y, t_max, s_max, i_max,
-                         w, X, Z, dr, dt,
-                         eta_Z = 0.1, eta_X = 0.1){
+                        w, X, Z, dr, dt,
+                        eta_Z = 0.1, eta_X = 0.1,
+                        Ylab = c("Causal Effect"),
+                        Xlab = c("Time"),
+                        ref_lim = c(-0.1, 0.1),
+                        tar_lim = c(-0.5, 0.5),
+                        Tunit_lab = c("Target Unit"),
+                        Cunit_lab = c("Control Units") ){
 
   # Select all control units as placebo treated units
   placebo_units <- 2:i_max
@@ -144,7 +174,7 @@ placebo_test<- function(F, Y, t_max, s_max, i_max,
 
   for (unit in unique(synthetic_placebo_df_F$Unit)) {
     if (!unit %in% names(color_map_F)) {
-      color_map_F[unit] <- scales::alpha("grey", 0.6)
+      color_map_F[unit] <-  scales::alpha("grey", 0.6)
       line_type_map_F[unit] <- "solid"
     }
   }
@@ -154,14 +184,14 @@ placebo_test<- function(F, Y, t_max, s_max, i_max,
 
   for (unit in unique(synthetic_placebo_df_Y$Unit)) {
     if (!unit %in% names(color_map_Y)) {
-      color_map_Y[unit] <- scales::alpha("grey", 0.6)
+      color_map_Y[unit] <-  scales::alpha("grey", 0.6)
       line_type_map_Y[unit] <- "solid"
     }
   }
 
   # Custom legend breaks and labels
   legend_breaks <- c("Synthetic_Treated_F", "Unit_2")  # Add "Unit_2" to represent control units
-  legend_labels <- c("Chelsea", "19 Cities")
+  legend_labels <- c(Tunit_lab, Cunit_lab)
 
   # Create the plots
   plot_F <- ggplot(synthetic_placebo_df_F, aes(x = year, y = Outcome, color = Unit, linetype = Unit)) +
@@ -176,8 +206,8 @@ placebo_test<- function(F, Y, t_max, s_max, i_max,
     scale_linetype_manual(values = line_type_map_F,
                           breaks = legend_breaks,
                           labels = legend_labels) +
-    scale_y_continuous(limits = c(-0.1, 0.1)) +
-    labs(title = NULL, x = "Time", y = "Causal Effect", color = "Legend", linetype = "Legend") +
+    scale_y_continuous(limits = ref_lim) +
+    labs(title = NULL, x = Xlab, y = Ylab, color = "Legend", linetype = "Legend") +
     theme_minimal() +
     theme(text = element_text(family = "sans"),
           legend.position = c(0.95, 0.1),
@@ -195,11 +225,11 @@ placebo_test<- function(F, Y, t_max, s_max, i_max,
     guides(color = guide_legend(title = NULL, override.aes = list(linetype = c("solid", "solid"),
                                                                   color = c("black", "grey")),
                                 order = 1),
-           linetype = guide_legend(title = NULL, override.aes = list(color = c("black", "grey")),
+           linetype = guide_legend(title = NULL,
                                    order = 1))
 
   legend_breaks <- c("Synthetic_Treated_Y", "Unit_2")  # Add "Unit_2" to represent control units
-  legend_labels <- c("Chelsea", "19 Cities")
+  legend_labels <- c(Tunit_lab, Cunit_lab)
 
   plot_Y <- ggplot(synthetic_placebo_df_Y, aes(x = year, y = Outcome, color = Unit, linetype = Unit)) +
     geom_line(data = subset(synthetic_placebo_df_Y, !Unit %in% c("Synthetic_Treated_Y")),
@@ -213,7 +243,8 @@ placebo_test<- function(F, Y, t_max, s_max, i_max,
     scale_linetype_manual(values = line_type_map_Y,
                           breaks = legend_breaks,
                           labels = legend_labels) +
-    labs(title = NULL, x = "Time", y = "Causal Effect", color = "Legend", linetype = "Legend") +
+    scale_y_continuous(limits = tar_lim) +
+    labs(title = NULL, x = Xlab, y = Ylab, color = "Legend", linetype = "Legend") +
     theme_minimal() +
     theme(text = element_text(family = "sans"),
           legend.position = c(0.95, 0.1),
@@ -231,8 +262,9 @@ placebo_test<- function(F, Y, t_max, s_max, i_max,
     guides(color = guide_legend(title = NULL, override.aes = list(linetype = c("solid", "solid"),
                                                                   color = c("black", "grey")),
                                 order = 1),
-           linetype = guide_legend(title = NULL, override.aes = list(color = c("black", "grey")),
+           linetype = guide_legend(title = NULL,
                                    order = 1))
+
 
   return(list(plot_F = plot_F, plot_Y = plot_Y))
 }

@@ -16,26 +16,32 @@ placebo_test(
   dr,
   dt,
   eta_Z = 0.1,
-  eta_X = 0.1
+  eta_X = 0.1,
+  Ylab = c("Causal Effect"),
+  Xlab = c("Time"),
+  ref_lim = c(-0.1, 0.1),
+  tar_lim = c(-0.5, 0.5),
+  Tunit_lab = c("Target Unit"),
+  Cunit_lab = c("Control Units")
 )
 }
 \arguments{
-\item{F}{A numeric matrix representing the reference domain outcome for treated and control units.
-The first row is the treated unit, and the rest are control units.}
+\item{F}{A numeric matrix for the reference domain outcome. Rows = units; columns = time periods.
+The first row is the treated unit.}
 
-\item{Y}{A numeric matrix representing the target domain outcome.}
+\item{Y}{A numeric matrix for the target domain outcome (same structure as \code{F}).}
 
-\item{t_max}{Integer. Number of pre-treatment time periods for \code{F}.}
+\item{t_max}{Integer. Number of time periods in the reference domain (\code{F}).}
 
-\item{s_max}{Integer. Number of post-treatment time periods for \code{Y}.}
+\item{s_max}{Integer. Number of time periods in the target domain (\code{Y}).}
 
-\item{i_max}{Integer. Total number of units.}
+\item{i_max}{Integer. Total number of units (treated + controls).}
 
 \item{w}{A numeric weight vector representing the synthetic control weights for the treated unit.}
 
-\item{X}{A numeric matrix of covariates in the target domain.}
+\item{X}{A matrix of covariates in the target domain.}
 
-\item{Z}{A numeric matrix of covariates in the reference domain.}
+\item{Z}{A matrix of covariates in the reference domain.}
 
 \item{dr}{Integer. Number of covariates in \code{Z}.}
 
@@ -44,6 +50,20 @@ The first row is the treated unit, and the rest are control units.}
 \item{eta_Z}{Numeric. Default is \code{0.1}.}
 
 \item{eta_X}{Numeric. Default is \code{0.1}.}
+
+\item{Ylab}{Character string. Y-axis label for both plots. Default is \code{"Causal Effect"}.}
+
+\item{Xlab}{Character string. X-axis label for both plots. Default is \code{"Time"}.}
+
+\item{ref_lim}{Numeric vector of length 2. Y-axis limits for the reference domain plot (\code{plot_F}).
+Default is \code{c(-0.1, 0.1)}.}
+
+\item{tar_lim}{Numeric vector of length 2. Y-axis limits for the target domain plot (\code{plot_Y}).
+Default is \code{c(-0.5, 0.5)}.}
+
+\item{Tunit_lab}{Character string. Legend label for the treated unit. Default is \code{"Target Unit"}.}
+
+\item{Cunit_lab}{Character string. Legend label for the control units. Default is \code{"Control Units"}.}
 }
 \value{
 A list containing:
@@ -54,13 +74,34 @@ A list containing:
 The plots visualize the difference between observed and synthetic outcomes across placebo-treated control units.
 }
 \description{
-This function runs placebo tests by treating each control unit as if it were the treated unit
-and estimating the synthetic control weights. It compares the actual outcome against the
-synthetic counterfactual outcome for both the reference outcome \code{F} and the target outcome \code{Y}.
+This function performs placebo tests by treating each control unit as a pseudo-treated unit and estimating
+its synthetic control using all other units. It then compares the observed and synthetic outcomes to
+compute placebo causal effects in both the reference domain (\code{F}) and the target domain (\code{Y}).
+Results are returned as two customizable ggplot objects.
 }
 \details{
-For each control unit, the function constructs a synthetic version of that unit using the other control units.
-It calculates the synthetic control effect as the difference between observed and synthetic outcomes.
-These placebo effects are plotted alongside the actual treated unit’s effect to assess significance.
-Synthetic control weights are optimized using \code{optimize_w_ipop()} and \code{find_best_B()} with constraints on covariate fit.
+This function uses synthetic control methods to estimate placebo effects by rotating treatment assignment
+across control units. It calculates the baseline normalized squared error (NSE) using covariate fit in both
+X and Z domains, then uses those baselines with slack parameters (\code{eta_X}, \code{eta_Z}) to optimize
+weights and compare effects. The resulting placebo plots visualize the effect trajectories across units.
+
+The treated unit's effect is plotted in black, and control units are shown in grey.
+Labels and y-axis ranges are fully customizable via function arguments.
+}
+\examples{
+\dontrun{
+placebo_result <- placebo_test(F = F_matrix, Y = Y_matrix,
+                               t_max = 10, s_max = 10, i_max = 20,
+                               w = w_star, X = X_matrix, Z = Z_matrix,
+                               dr = 5, dt = 5,
+                               eta_Z = 0.1, eta_X = 0.1,
+                               Ylab = "Effect", Xlab = "Time",
+                               Tunit_lab = "Treated", Cunit_lab = "Controls")
+print(placebo_result$plot_F)
+print(placebo_result$plot_Y)
+}
+
+}
+\seealso{
+\code{\link{optimize_w_ipop}}, \code{\link{find_best_B}}, \code{\link{NSE_x}}
 }
