@@ -5,6 +5,7 @@
 \title{Placebo Tests for Synthetic Control Data Fusion Method}
 \usage{
 placebo_test(
+  B,
   F,
   Y,
   t_max,
@@ -26,6 +27,8 @@ placebo_test(
 )
 }
 \arguments{
+\item{B}{A list of combinations of a budgeting vector.}
+
 \item{F}{A numeric matrix for the reference domain outcome. Rows = units; columns = time periods.
 The first row is the treated unit.}
 
