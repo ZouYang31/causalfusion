@@ -1,241 +1,215 @@
-# ------------------------------------------------------------------------------#
-# Function: Generate Reference and Target Domain Plot for Synthetic Control
-# ------------------------------------------------------------------------------#
+#################################################################
+# Generate Reference and Target Domain Plot for Synthetic Control
+#################################################################
 
-synthetic_reference_plot_real_data <- function(F, w, t_max, i_max){
-  
-  F_treated <-  F[1, ]
+#' Plot Synthetic Reference Outcome Over Time
+#'
+#' This function creates a line plot comparing the treated target unit and its synthetic target unit
+#' with other control units over time of the reference domain.
+#'
+#' @param F A matrix of outcomes of reference domain (rows = units, columns = time).
+#' @param w A numeric vector of weights for synthetic control.
+#' @param t_max Maximum number of time periods.
+#' @param i_max Total number of units (including treated and controls).
+#' @param J Number of control units.
+#' @param title Optional plot title.
+#' @param x_label Label for the x-axis. Default is "Time".
+#' @param y_label Label for the y-axis. Default is "Outcomes in Target Domain".
+#' @param legend_labels Character vector for custom legend labels. Default is "Target "
+#' @return A graph representing the comparison of outcomes for the observed target unit and synthetic target unit in the reference domain
+#' @export
+synthetic_reference_plot_real_data <- function(F, w, t_max, i_max, J,
+                                               title = NULL,
+                                               x_label = "Time",
+                                               y_label = "Outcome",
+                                               legend_labels = c("Target Unit", "Synthetic Target Unit", "Control Units")) {
+
+  F_treated <- F[1, ]
   synthetic_treated_F <- t(w) %*% F[2:(J+1), ]
-  
-  # Create a data frame for plotting
-  data <- data.frame(
-    year = 1:t_max,
-    Real_Treated = F[1, ],
-    Synthetic_Treated = t(synthetic_treated_F)
-  )
-  
-  # Create a data frame for plotting all units in F
+
   data_all <- data.frame(
     year = rep(1:t_max, i_max),
     Outcome = as.vector(t(F)),
     Unit = rep(paste0("Unit_", 1:i_max), each = t_max)
   )
-  
-  # Add the synthetic treated unit to the data frame
+
   data_synthetic <- data.frame(
     year = 1:t_max,
     Outcome = as.vector(synthetic_treated_F),
     Unit = rep("Synthetic_control", t_max)
   )
-  
-  # Combine the data frames
+
   data_all <- rbind(data_all, data_synthetic)
-  
-  # Define colors and line types
+
   color_map <- c("Unit_1" = "black", "Synthetic_control" = "black")
   line_type_map <- c("Unit_1" = "solid", "Synthetic_control" = "dashed")
-  
-  # Set the color and linetype for other units
+
   for (unit in unique(data_all$Unit)) {
     if (!unit %in% names(color_map)) {
       color_map[unit] <- scales::alpha("grey", 0.5)
       line_type_map[unit] <- "solid"
     }
   }
-  
-  # Custom legend breaks and labels
-  legend_breaks <- c("Unit_1", "Synthetic_control", "Unit_2")  # Correct the value to match the data
-  legend_labels <- c("Chelsea", "Synthetic Chelsea", "19 Cities")
-  
-  # Plot the results - reference domain
+  legend_breaks = c("Unit_1", "Synthetic_control", "Unit_2")
+  # Match override aesthetics to number of legend items
+  override_colors <- c("black", "black", "grey")[1:length(legend_breaks)]
+  override_linetypes <- c("solid", "dashed", "solid")[1:length(legend_breaks)]
+
   p <- ggplot(data_all, aes(x = year, y = Outcome, group = Unit, color = Unit, linetype = Unit)) +
-    geom_line(data = subset(data_all, Unit != "Unit_1" & Unit != "Synthetic_control"), 
-              aes(color = Unit, linetype = Unit), size = 0.8, alpha = 0.5) +  # Plot grey donor pool lines first
-    geom_line(data = subset(data_all, Unit == "Synthetic_control"), 
-              aes(color = Unit, linetype = Unit), size = 0.8) +  # Dashed black line on top
-    geom_line(data = subset(data_all, Unit == "Unit_1"), 
-              aes(color = Unit, linetype = Unit), size = 0.8) +  # Solid black line on top
-    scale_color_manual(values = color_map, 
+    geom_line(data = subset(data_all, !Unit %in% c("Unit_1", "Synthetic_control")),
+              size = 0.8, alpha = 0.5) +
+    geom_line(data = subset(data_all, Unit == "Synthetic_control"), size = 0.8) +
+    geom_line(data = subset(data_all, Unit == "Unit_1"), size = 0.8) +
+    scale_color_manual(values = color_map,
                        breaks = legend_breaks,
                        labels = legend_labels) +
-    scale_linetype_manual(values = line_type_map, 
+    scale_linetype_manual(values = line_type_map,
                           breaks = legend_breaks,
                           labels = legend_labels) +
-    labs(title = NULL,
-         x = "Time",
-         y = "Covid-19 Vaccination Rate of Black Subpopulation",
+    labs(title = title,
+         x = x_label,
+         y = y_label,
          color = "Legend",
          linetype = "Legend") +
     theme_minimal() +
-    theme(text = element_text(family = "sans"), 
-          legend.position = c(0.95, 0.15), # Adjust this to position the legend inside the graph
-          legend.justification = c(1, 1), # Adjust this to align the legend box
-          legend.text = element_text(size = 14), 
-          legend.key.size = unit(1, "lines"),
-          legend.key.width = unit(2, "lines"), 
-          legend.margin = margin(0, 0, 0, 0),
-          legend.background = element_rect(fill = scales::alpha('grey', 0.5)),
-          axis.title.x = element_text(size = 15),
-          axis.title.y = element_text(size = 15),
-          axis.text.x = element_text(size = 14),
-          axis.text.y = element_text(size = 14),
-          axis.ticks.length = unit(0.25, "cm")) +
-    guides(color = guide_legend(title = NULL, override.aes = list(
-      linetype = c("solid", "dashed", "solid"),
-      color = c("black", "black", "grey")),
-      order = 1),
-      linetype = guide_legend(title = NULL, override.aes = list(
-        color = c("black", "black", "grey")),
-        order = 1))
-  
-  print(p)
-  ggsave(filename = paste0(dir$output, "/covid_ref.pdf"), width = 8, height = 6, dpi = 300)
+    theme(
+      text = element_text(family = "sans"),
+      legend.position = c(0.95, 0.15),
+      legend.justification = c(1, 1),
+      legend.text = element_text(size = 14),
+      legend.key.size = unit(1, "lines"),
+      legend.key.width = unit(2, "lines"),
+      legend.margin = margin(0, 0, 0, 0),
+      legend.background = element_rect(fill = scales::alpha('grey', 0.5)),
+      axis.title.x = element_text(size = 15),
+      axis.title.y = element_text(size = 15),
+      axis.text.x = element_text(size = 14),
+      axis.text.y = element_text(size = 14),
+      axis.ticks.length = unit(0.25, "cm")
+    ) +
+    guides(
+      color = guide_legend(
+        title = NULL,
+        override.aes = list(
+          linetype = override_linetypes,
+          color = override_colors
+        ),
+        order = 1
+      ),
+      linetype = "none"
+    )
+
+  return(p)
 }
 
-synthetic_target_plot_real_data <- function(Y, w, s_max, i_max){
-  
-  synthetic_treated_Y <- t(w) %*% Y[2:(J+1), ]
-  
-  # Create a data frame for plotting all units in F
+
+
+#' Plot Synthetic Target Outcome Over Time
+#'
+#' This function creates a line plot comparing the treated target unit and its synthetic target unit
+#' with other control units over time of the target domain.
+#'
+#' @param Y A matrix of outcomes for control units including treated unit in the first row.
+#' @param w A numeric weight vector for constructing the synthetic control.
+#' @param s_max Maximum number of time periods.
+#' @param i_max Total number of units (including treated and controls).
+#' @param J The number of control units.
+#' @param title Optional plot title.
+#' @param x_label Label for the x-axis. Default is "Time".
+#' @param y_label Label for the y-axis. Default is "Outcomes in Target Domain".
+#' @param legend_labels Character vector for custom legend labels. Default is "Target Unit", "Synthetic Target Unit", "Control Units"
+#' @return A graph representing the comparison of outcomes for the observed target unit and synthetic target unit in the target domain
+#' @export
+synthetic_target_plot_real_data <- function(Y, w, s_max, i_max, J,
+                                            title = NULL,
+                                            x_label = "Time",
+                                            y_label = "Outcomes in Target Domain",
+                                            legend_labels = c("Target Unit", "Synthetic Target Unit", "Control Units")) {
+  # Compute synthetic treated outcome
+  synthetic_treated_Y <- t(w) %*% Y[2:(J + 1), ]
+
+  # Create full data set
   data_all <- data.frame(
     year = rep(1:s_max, i_max),
     Outcome = as.vector(t(Y)),
     Unit = rep(paste0("Unit_", 1:i_max), each = s_max)
   )
-  
-  # Add the synthetic treated unit to the data frame
+
+  # Add synthetic treated
   data_synthetic <- data.frame(
     year = 1:s_max,
     Outcome = as.vector(synthetic_treated_Y),
     Unit = rep("Synthetic_control", s_max)
   )
-  
+
+  # Add observed treated unit (row 1)
   data_observed <- data.frame(
     year = 1:s_max,
-    Outcome = as.vector(Y_treated),
+    Outcome = as.vector(Y[1, ]),
     Unit = rep("Observed_target", s_max)
   )
-  
-  # Combine the data frames
+
+  # Combine all data
   data_all <- rbind(data_all, data_synthetic, data_observed)
-  
+
   # Define colors and line types
-  color_map <- c("Unit_1" = "black", "Synthetic_control" = "black","Observed_target" = "black")
-  line_type_map <- c("Unit_1" = "solid", "Synthetic_control" = "dashed", "Observed_target" = "solid")
-  
+  color_map <- c("Observed_target" = "black", "Synthetic_control" = "black", "Unit_1" = "black")
+  line_type_map <- c("Observed_target" = "solid", "Synthetic_control" = "dashed", "Unit_1" = "solid")
+
+  # Set others to grey
   for (unit in unique(data_all$Unit)) {
     if (!unit %in% names(color_map)) {
       color_map[unit] <- scales::alpha("grey", 0.5)
       line_type_map[unit] <- "solid"
     }
   }
-  
-  # Custom legend breaks and labels
-  legend_breaks <- c("Unit_1", "Synthetic_control","Unit_2")  # Add "Unit_2" to represent control units
-  legend_labels <- c("Chelsea", "Synthetic Chelsea", "19 Cities")
-  
-  # Plot the results - reference domain
+
+  legend_breaks <- c("Observed_target", "Synthetic_control", "Unit_2")
+  override_colors <- c("black", "black", "grey")[1:length(legend_breaks)]
+  override_linetypes <- c("solid", "dashed", "solid")[1:length(legend_breaks)]
+
+  # Plot
   p <- ggplot(data_all, aes(x = year, y = Outcome, group = Unit, color = Unit, linetype = Unit)) +
-    geom_line(data = subset(data_all, Unit != "Unit_1" & Unit != "Synthetic_control"), 
-              aes(color = Unit, linetype = Unit), size = 0.8, alpha = 0.5) +  # Plot grey donor pool lines first
-    geom_line(data = subset(data_all, Unit == "Synthetic_control"), 
-              aes(color = Unit, linetype = Unit), size = 0.8) +  # Dashed black line on top
-    geom_line(data = subset(data_all, Unit == "Unit_1"), 
-              aes(color = Unit, linetype = Unit), size = 0.8) +  # Solid black line on top
-    scale_color_manual(values = color_map, 
+    geom_line(data = subset(data_all, !Unit %in% c("Observed_target", "Synthetic_control")),
+              size = 0.8, alpha = 0.5) +
+    geom_line(data = subset(data_all, Unit == "Synthetic_control"), size = 0.8) +
+    geom_line(data = subset(data_all, Unit == "Observed_target"), size = 0.8) +
+    scale_color_manual(values = color_map,
                        breaks = legend_breaks,
                        labels = legend_labels) +
-    scale_linetype_manual(values = line_type_map, 
+    scale_linetype_manual(values = line_type_map,
                           breaks = legend_breaks,
                           labels = legend_labels) +
-    labs(title = NULL,
-         x = "Time",
-         y = "Covid 19 Vaccination Rate of Hispanic",
+    labs(title = title,
+         x = x_label,
+         y = y_label,
          color = "Legend",
          linetype = "Legend") +
     theme_minimal() +
-    theme(text = element_text(family = "sans"), 
-          legend.position = c(0.95, 0.2), # Adjust this to position the legend inside the graph
-          legend.justification = c(1, 1), # Adjust this to align the legend box
-          legend.text = element_text(size = 14), 
-          legend.key.size = unit(1, "lines"),
-          legend.key.width = unit(2, "lines"), 
-          legend.margin = margin(0, 0, 0, 0),
-          legend.background = element_rect(fill = scales::alpha('grey', 0.5)),
-          axis.title.x = element_text(size = 15),
-          axis.title.y = element_text(size = 15),
-          axis.text.x = element_text(size = 14),
-          axis.text.y = element_text(size = 14),
-          axis.ticks.length = unit(0.25, "cm")) +
-    guides(color = guide_legend(title = NULL, override.aes = list(
-      linetype = c("solid", "dashed", "solid"),
-      color = c("black", "black","grey")),
-      order = 1),
-      linetype = guide_legend(title = NULL, override.aes = list(
-        color = c( "black","black", "grey")),
-        order = 1))
-  
-  print(p)
-  ggsave(filename = paste0(dir$output, "/covid_target.pdf"), width = 8, height = 6, dpi = 300)
-  
-}
-
-# ------------------------------------------------------------------------------#
-# Function: Plot Linear Equi-Confounding Data
-# ------------------------------------------------------------------------------#
-
-linear_equi_conf_plot_real_data <- function(Y_treated, Y_control, F_treated, F_control) {
-  # Compute means for observed and control units
-  H_1 <- mean(Y_treated)  # Observed target unit
-  H_0 <- mean(Y_control)
-  B_1 <- mean(F_treated)
-  B_0 <- mean(F_control)
-  
-  # Prepare data for visualization
-  data <- data.frame(
-    time = c(1, 0, 1, 0),
-    value = c(H_0, B_0, H_1, B_1),
-    group = factor(c('H_0', 'B_0', 'H_1', 'B_1'), levels = c('H_0', 'B_0', 'H_1', 'B_1'))
-  )
-  
-  # Define labels for plotting
-  labels <- c('H_0' = "H[0]", 'B_0' = "B[0]", 'H_1' = "H[1]", 'B_1' = "B[1]")
-  
-  # Generate the plot
-  p <- ggplot(data, aes(x = time, y = value)) +
-    geom_point(size = 1) +
-    geom_text(aes(label = labels[group]), vjust = -0.2, parse = TRUE) +  # Adding labels to points
-    geom_line(aes(linetype = group), size = 0.8) +
-    
-    # Add connecting lines
-    geom_line(data = data.frame(time = c(1, 0), value = c(H_0, B_0), group = 'B_0'),
-              aes(x = time, y = value), linetype = "solid", color = "black", size = 0.8) +
-    geom_line(data = data.frame(time = c(0, 1), value = c(B_1, H_1), group = 'B_0'),
-              aes(x = time, y = value), linetype = "solid", color = "black", size = 0.8) +
-    
-    # Customize x-axis labels
-    scale_x_continuous(breaks = c(0, 1), labels = c('Reference', 'Target')) +
-    
-    # Define line types and labels
-    scale_linetype_manual(
-      values = c('H_0' = "solid", 'B_0' = "solid", 'H_1' = "solid", 'B_1' = "solid"),
-      labels = c('H_0' = expression(H[0]), 'B_0' = expression(B[0]),
-                 'H_1' = expression(H[1]), 'B_1' = expression(B[1]))
-    ) +
-    
-    # Labels and Theme
-    labs(title = NULL, x = NULL, y = 'Outcome') +
-    theme_minimal() +
     theme(
-      text = element_text(family = "Times New Roman"),
-      legend.position = "none",
-      axis.title.x = element_text(size = 18),
-      axis.title.y = element_text(size = 18),
+      text = element_text(family = "sans"),
+      legend.position = c(0.95, 0.2),
+      legend.justification = c(1, 1),
+      legend.text = element_text(size = 14),
+      legend.key.size = unit(1, "lines"),
+      legend.key.width = unit(2, "lines"),
+      legend.margin = margin(0, 0, 0, 0),
+      legend.background = element_rect(fill = scales::alpha('grey', 0.5)),
+      axis.title.x = element_text(size = 15),
+      axis.title.y = element_text(size = 15),
       axis.text.x = element_text(size = 14),
       axis.text.y = element_text(size = 14),
-      axis.ticks.length = unit(0.25, "cm"),
-      legend.title = element_blank()
+      axis.ticks.length = unit(0.25, "cm")
+    ) +
+    guides(
+      color = guide_legend(title = NULL,
+                           override.aes = list(linetype = override_linetypes,
+                                               color = override_colors),
+                           order = 1),
+      linetype = "none"
     )
-  print(p)
+
+  return(p)
 }
+
 

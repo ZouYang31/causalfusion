@@ -7,9 +7,9 @@
 generate_b_list(step = 0.01, min_value = 0.01)
 }
 \arguments{
-\item{step}{A numeric value indicating the increment step size (default is 0.01).}
+\item{step}{A numeric value indicating the increment step size. Default is \code{0.01}.}
 
-\item{min_value}{A numeric value specifying the minimum threshold for each component (default is 0.01).}
+\item{min_value}{A numeric value specifying the minimum threshold for each component. Default is \code{0.01}.}
 }
 \value{
 A list of budgets, each represented as a list with elements \code{b_F}, \code{b_Z}, and \code{b_X}.

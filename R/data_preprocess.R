@@ -202,180 +202,19 @@ covariates_matrix <- function(data, covariates, colname_unit) {
   # Aggregate using base R
   formula_str <- as.formula(paste(". ~", colname_unit))
   aggregated_df <- aggregate(formula_str, data = data[, c(colname_unit, covariates)], FUN = mean, na.rm = TRUE)
-  print(aggregated_df)
-
 
   # Convert to matrix
   return(as.matrix(aggregated_df))
 }
 
 
-#' Compute Synthetic Weighted Averages for Selected Columns
-#'
-#' This function computes the synthetic group's weighted averages for the specified columns
-#' within a given time-related variable (e.g., year, month, or date).
-#' @param data A data frame containing a 'year' column and numeric columns of interest.
-#' @param w A numeric vector of weights (should sum to 1), corresponding to control units.
-#' @param covariates A character vector of column names for which to compute the weighted average.
-#' @param time_value The target time (year, month, or date) for filtering the data.
-#'
-#' @return A one-row data frame containing the synthetic weighted averages for the selected columns.
-#'
-#' @examples
-#' compute_synth_avg(data, w = c(0.5, 0.5), covariates = c("median_income", "median_age"), year = 2021)
-#'
-#' @export
-compute_synth_avg <- function(data, w, covariates, time_value) {
-  # Filter data to the specified year
-  filtered_data <- data[data$time_value == time_value, ]
-
-  # Assume treated unit is the first row; use only control units
-  control_data <- filtered_data[-1, covariates, drop = FALSE]
-
-  # Compute weighted averages
-  synth_results <- sapply(control_data, function(col) sum(col * w))
-
-  # Return as a one-row data frame
-  return(as.data.frame(t(synth_results)))
-}
-
-
-
-# compute_synth_avg <- function(data, w) {
-#
-#   # Compute synthetic weighted averages
-#   synth_median_income   <- sum(data[data$year == 2021, "median_income"][-1] * w)
-#   synth_proportion      <- sum(data[data$year == 2021, "proportion"][-1] * w)
-#   synth_median_age      <- sum(data[data$year == 2021, "median_age"][-1] * w)
-#   synth_65proportion    <- sum(data[data$year == 2021, "X65p_proportion"][-1] * w)
-#
-#   # Store results in a named data frame for easy access
-#   synth_results <- data.frame(
-#     median_income  = synth_median_income,
-#     proportion     = synth_proportion,
-#     median_age     = synth_median_age,
-#     X65p_proportion = synth_65proportion
-#   )
-#
-#   return(synth_results)
-# }
-
-
-#' Compute Average Covariate Values for Control Units
-#'
-#' This function computes the mean of selected covariates for control units,
-#' filtered by a specified time variable (e.g., year, month, or date).
-#'
-#' @param data A data frame containing control unit information.
-#' @param covariates A character vector of covariate column names to average.
-#' @param time_var A string specifying the name of the time variable column (e.g., "year", "month", or "date").
-#' @param time_value A value (numeric or character) to filter the time variable by.
-#'
-#' @return A list containing:
-#' \item{controls_avg_df}{A data frame with average covariate values for the specified time.}
-#' @export
-compute_controls_avg <- function(data, covariates, time_var, time_value) {
-  # Filter data for the specified time condition
-  data_filtered <- data[data[[time_var]] == time_value, ]
-
-  # Compute mean for each covariate
-  avg_values <- sapply(covariates, function(col) {
-    mean(data_filtered[[col]], na.rm = TRUE)
-  })
-
-  # Create a data frame from the result
-  controls_avg_df <- as.data.frame(as.list(avg_values))
-
-  return(list(controls_avg_df = controls_avg_df))
-}
-
-
-# compute_controls_avg <- function(data){
-#   # Compute averages for each covariate
-#   avg_median_income   <- mean(data[data$year == 2021, "median_income"], na.rm = TRUE)
-#   avg_proportion      <- mean(data[data$year == 2021, "proportion"], na.rm = TRUE)
-#   avg_median_age      <- mean(data[data$year == 2021, "median_age"], na.rm = TRUE)
-#   avg_X65p_proportion <- mean(data[data$year == 2021, "X65p_proportion"], na.rm = TRUE)
-#
-#   # Store results in a named data frame
-#   controls_avg_df <- data.frame(
-#     median_income   = avg_median_income,
-#     proportion      = avg_proportion,
-#     median_age      = avg_median_age,
-#     X65p_proportion = avg_X65p_proportion
-#   )
-#
-#   # Convert data frame to table format for display
-#   controls_avg_table <- knitr::kable(controls_avg_df, format = "simple")
-#
-#   # Return both data frame and table
-#   return(list(
-#     controls_avg_df = controls_avg_df))
-#
-# }
-
-# ------------------------------------------------------------------------------#
-# Function: Process Data for Synthetic, Real, and Control Groups
-# ------------------------------------------------------------------------------#
-process_group_data <- function(df_filtered, unit_name, w) {
-
-  # Compute average data for the filtered dataset
-  avg_data <- compute_average_by_unit(df_filtered, covariate_columns)
-
-  # Compute synthetic data using weights
-  synth_data <- compute_synth_avg(avg_data, w)
-
-  # Extract Chelsea-specific row and compute its average
-  if(unit_name == "Chelsea-black"){
-    chelsea_row <- df_filtered[df_filtered$unit == unit_name, ]
-  }
-  else {
-    chelsea_row <- df_filtered[df_filtered$unit == unit_name, ]
-  }
-  avg_chelsea <- compute_average_by_unit(chelsea_row, covariate_columns)
-
-  # Compute control group averages
-  avg_controls <- compute_controls_avg(avg_data)
-
-  return(list(
-    avg_data = avg_data,
-    synth_data = synth_data,
-    avg_chelsea = avg_chelsea,
-    avg_controls = avg_controls
-  ))
-}
-
-
-#' Convert Data Frame to Numeric Matrix
-#'
-#' This function converts a data frame to a numeric matrix by removing non-numeric columns such as identifiers.
-#'
-#' @param data A data frame with at least one non-numeric column (e.g., `unit`) and the rest numeric.
-#'
-#' @return A numeric matrix containing only the numeric columns of the input data.
-#'
-#' @examples
-#' \dontrun{
-#' df <- data.frame(unit = c("A", "B"), t1 = c(1, 2), t2 = c(3, 4))
-#' mat <- convert_to_matrix(df)
-#' }
-#'
-#' @import dplyr
-#' @export
-
-# Convert Data Frames to Numeric Matrices
-convert_to_matrix <- function(data) {
-  data %>%
-    select(-unit) %>%
-    as.matrix()
-}
 
 #' Generate List of B Vectors Summing to One
 #'
 #' This function generates a list of combinations of a budgeting vector \eqn{(b_F, b_Z, b_X)} such that their sum equals 1.
 #'
-#' @param step A numeric value indicating the increment step size (default is 0.01).
-#' @param min_value A numeric value specifying the minimum threshold for each component (default is 0.01).
+#' @param step A numeric value indicating the increment step size. Default is \code{0.01}.
+#' @param min_value A numeric value specifying the minimum threshold for each component. Default is \code{0.01}.
 #'
 #' @return A list of budgets, each represented as a list with elements `b_F`, `b_Z`, and `b_X`.
 #'
