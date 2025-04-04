@@ -1,5 +1,5 @@
 
-
+utils::globalVariables(c("year", "Outcome", "Unit"))
 #' Placebo Tests for Synthetic Control Data Fusion Method
 #'
 #' This function performs placebo tests by treating each control unit as a pseudo-treated unit and estimating
@@ -7,6 +7,7 @@
 #' compute placebo causal effects in both the reference domain (\code{F}) and the target domain (\code{Y}).
 #' Results are returned as two customizable ggplot objects.
 #'
+#' @param B A list of combinations of a budgeting vector.
 #' @param F A numeric matrix for the reference domain outcome. Rows = units; columns = time periods.
 #'          The first row is the treated unit.
 #' @param Y A numeric matrix for the target domain outcome (same structure as \code{F}).
@@ -61,10 +62,11 @@
 #' }
 #'
 #' @import ggplot2
+#' @importFrom scales alpha
 #' @export
 
 # ## ----         placebo test -------------  ##
-placebo_test<- function(F, Y, t_max, s_max, i_max,
+placebo_test<- function(B, F, Y, t_max, s_max, i_max,
                         w, X, Z, dr, dt,
                         eta_Z = 0.1, eta_X = 0.1,
                         Ylab = c("Causal Effect"),
@@ -88,14 +90,12 @@ placebo_test<- function(F, Y, t_max, s_max, i_max,
   F_treated <- F[1, ]
   F_control <- F[2:(J+1), ]
   # Calculate the baseline X and Z
-  result_X <- optimize_w_ipop(F_treated = F_treated, F_control = F_control,
-                              X, Z, t_max, dr, dt, i_max, target = "X")
+  result_X <- optimize_w_ipop(X = X, n_X = dt, i_max = i_max)
   wX <- result_X$weights
   NSE_X_baseline <- NSE_x(wX, F, X, Z, t_max, dr, dt, i_max, target = "X")
 
 
-  result_Z <- optimize_w_ipop(F_treated = F_treated, F_control = F_control,
-                              X, Z, t_max, dr, dt, i_max, target = "Z")
+  result_Z <- optimize_w_ipop(X = Z, n_X = dr, i_max = i_max)
   wZ <- result_Z$weights
   NSE_Z_baseline <- NSE_x(wZ, F, X, Z, t_max, dr, dt, i_max, target = "Z")
 
@@ -114,7 +114,7 @@ placebo_test<- function(F, Y, t_max, s_max, i_max,
     Z_placebo_treated <- Z[placebo_unit, ]
     Z_placebo_control <- Z[-placebo_unit, ]
 
-    b_list <- find_best_B(B, F_treated = F_placebo_treated, F_control = F_placebo_control,
+    b_list <- find_best_B(B = B, F_treated = F_placebo_treated, F_control = F_placebo_control,
                           X_treated = X_placebo_treated, X_control = X_placebo_control,
                           Z_treated = Z_placebo_treated, Z_control = Z_placebo_control,
                           t_max, dr, dt, i_max,
