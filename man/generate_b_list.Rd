@@ -18,7 +18,7 @@ A list of budgets, each represented as a list with elements \code{b_F}, \code{b_
 This function generates a list of combinations of a budgeting vector \eqn{(b_F, b_Z, b_X)} such that their sum equals 1.
 }
 \examples{
-B_list <- generate_b_list(step = 0.1, min_value = 0.1)
+B_list <- generate_b_list(step = 0.01, min_value = 0.01)
 length(B_list)  # View number of valid combinations
 head(B_list)
 

@@ -40,7 +40,12 @@ df_long <- data.frame(
   time = rep(2001:2003, times = 2),
   outcome = c(1, 2, 3, 4, 5, 6)
 )
-outcome_matrix(df_long, colname_outcome_var = "outcome", colname_unit = "unit", colname_time = "time")
+outcome_matrix(
+  df_long,
+  colname_outcome_var = "outcome",
+  colname_unit = "unit",
+  colname_time = "time"
+)
 
 # Wide format example
 df_wide <- data.frame(
@@ -48,5 +53,10 @@ df_wide <- data.frame(
   t2 = c(2, 5),
   t3 = c(3, 6)
 )
-outcome_matrix(df_wide, colname_outcome_var = NULL, colname_unit = NULL)
+outcome_matrix(
+  df_wide,
+  colname_outcome_var = NULL,
+  colname_unit = NULL
+)
+
 }
