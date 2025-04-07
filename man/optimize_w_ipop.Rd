@@ -51,8 +51,10 @@ This function uses quadratic programming to find weights \eqn{w} such that
 The optimization problem is solved using \code{ipop()} from the \code{kernlab} package.
 }
 \examples{
-X <- matrix(rnorm(40), nrow = 4)
-Z <- matrix(rnorm(40), nrow = 4)
-optimize_w_ipop(X = X, n_X = 4, i_max = 4)
+i_max = 31; dt = 3
+X <- matrix(runif(i_max * dt, min=0, max=1), nrow = i_max, ncol = dt) # target domain
+test <- optimize_w_ipop(X = X, n_X = ncol(X), i_max = nrow(X),
+margin.ipop = 1e-4, sigf.ipop = 5, bound.ipop = 10)
+test$weights
 
 }
