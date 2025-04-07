@@ -2,9 +2,12 @@ Package: causalfusion
 Title: Causal Inference with Fusion Methods
 Version: 0.0.0.9000
 Authors@R: 
-    person("YourFirstName", "YourLastName", email = "you@example.com", role = c("aut", "cre"))
+    person("Zou", "Yang", email = "zoeyyang@bu.edu", role = c("aut", "cre"),
+           comment = c("equal contribution"))
+    person("Seung Hee", "Lee", email = "seunghee@bu.edu", role = c("aut", "cre"),
+           comment = c("equal contribution"))
 Description: Tools for implementing and optimizing synthetic control methods with fusion-style constraints using Gurobi and other solvers.
-License: MIT
+License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
@@ -15,4 +18,3 @@ Imports:
   kernlab,
   stats,
   scales,
-
