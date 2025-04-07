@@ -4,7 +4,7 @@
 \alias{normalize_columns}
 \title{Normalize Columns Using Min-Max Scaling}
 \usage{
-normalize_columns(data, columns = NULL)
+normalize_columns(data, columns)
 }
 \arguments{
 \item{data}{A numeric vector or a data frame.}
@@ -12,18 +12,14 @@ normalize_columns(data, columns = NULL)
 \item{columns}{If \code{data} is a data frame, a character vector specifying which columns to normalize.}
 }
 \value{
-A normalized numeric vector (if input is numeric) or a data frame with normalized columns.
+A vector normalized between \code{0} and \code{1}.
 }
 \description{
 This function applies min-max normalization to either a numeric vector or specified numeric columns
-in a data frame. If a numeric vector is provided, it scales the values to the \link{0, 1} range.
+in a data frame. If a numeric vector is provided, it scales the values to the \code{0} and \code{1} range.
 If a data frame and column names are provided, it applies normalization only to those columns.
 }
 \examples{
-# Normalize vector
-normalize_columns(c(10, 20, 30))
-
-# Normalize selected columns in a data frame
 df <- data.frame(a = 1:5, b = 6:10, c = letters[1:5])
 normalize_columns(df, columns = c("a", "b"))
 

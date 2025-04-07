@@ -10,24 +10,19 @@
 #' Normalize Columns Using Min-Max Scaling
 #'
 #' This function applies min-max normalization to either a numeric vector or specified numeric columns
-#' in a data frame. If a numeric vector is provided, it scales the values to the [0, 1] range.
+#' in a data frame. If a numeric vector is provided, it scales the values to the \code{0} and \code{1} range.
 #' If a data frame and column names are provided, it applies normalization only to those columns.
 #'
 #' @param data A numeric vector or a data frame.
 #' @param columns If `data` is a data frame, a character vector specifying which columns to normalize.
 #'
-#' @return A normalized numeric vector (if input is numeric) or a data frame with normalized columns.
-#'
+#' @return A vector normalized between \code{0} and \code{1}.
 #' @examples
-#' # Normalize vector
-#' normalize_columns(c(10, 20, 30))
-#'
-#' # Normalize selected columns in a data frame
 #' df <- data.frame(a = 1:5, b = 6:10, c = letters[1:5])
 #' normalize_columns(df, columns = c("a", "b"))
 #'
 #' @export
-normalize_columns <- function(data, columns = NULL) {
+normalize_columns <- function(data, columns) {
   # Check for missing inputs
   if (missing(data) || missing(columns)) {
     stop("One or more required arguments are missing: 'data' or 'columns'.")
@@ -109,7 +104,6 @@ reorder_unit_first <- function(data, unit_pattern) {
 #' Required if \code{colname_outcome_var} is not \code{NULL}.
 #'
 #' @return A numeric matrix where rows represent units and columns represent time periods.
-#'
 #' @examples
 #' # Long format example
 #' df_long <- data.frame(
@@ -117,7 +111,12 @@ reorder_unit_first <- function(data, unit_pattern) {
 #'   time = rep(2001:2003, times = 2),
 #'   outcome = c(1, 2, 3, 4, 5, 6)
 #' )
-#' outcome_matrix(df_long, colname_outcome_var = "outcome", colname_unit = "unit", colname_time = "time")
+#' outcome_matrix(
+#'   df_long,
+#'   colname_outcome_var = "outcome",
+#'   colname_unit = "unit",
+#'   colname_time = "time"
+#' )
 #'
 #' # Wide format example
 #' df_wide <- data.frame(
@@ -125,7 +124,12 @@ reorder_unit_first <- function(data, unit_pattern) {
 #'   t2 = c(2, 5),
 #'   t3 = c(3, 6)
 #' )
-#' outcome_matrix(df_wide, colname_outcome_var = NULL, colname_unit = NULL)
+#' outcome_matrix(
+#'   df_wide,
+#'   colname_outcome_var = NULL,
+#'   colname_unit = NULL
+#' )
+#'
 #' @importFrom stats reshape
 #' @export
 outcome_matrix <- function(data, colname_outcome_var = NULL, colname_unit = NULL, colname_time = NULL){
@@ -220,7 +224,7 @@ covariates_matrix <- function(data, covariates, colname_unit) {
 #' @return A list of budgets, each represented as a list with elements `b_F`, `b_Z`, and `b_X`.
 #'
 #' @examples
-#' B_list <- generate_b_list(step = 0.1, min_value = 0.1)
+#' B_list <- generate_b_list(step = 0.01, min_value = 0.01)
 #' length(B_list)  # View number of valid combinations
 #' head(B_list)
 #'
@@ -243,6 +247,5 @@ generate_b_list <- function(step = 0.01, min_value = 0.01) {
 
   return(B)
 }
-
 
 
