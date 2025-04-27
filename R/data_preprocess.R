@@ -162,14 +162,14 @@ outcome_matrix <- function(data, colname_outcome_var = NULL, colname_unit = NULL
 
 #' Extract Covariate Matrix (Z and X Matrix)
 #'
-#' This function aggregates the specified covariate columns by the unit column
+#' This function specifies covariate columns by the unit column
 #' and returns them as a numeric matrix, excluding the unit identifier column.
 #'
 #' @param data A data frame containing the covariates.
 #' @param covariates A character vector specifying which covariate columns to extract.
-#' @param colname_unit A string specifying the name of the unit identifier column to group by.
+#' @param colname_unit A string specifying the name of the unit identifier column.
 #'
-#' @return A numeric matrix of covariates aggregated by unit.
+#' @return A numeric matrix of covariates by unit.
 #' @examples
 #' test_data <- data.frame(
 #'   unit = rep(c("A", "B"), each = 2),
@@ -180,7 +180,6 @@ outcome_matrix <- function(data, colname_outcome_var = NULL, colname_unit = NULL
 #' covariates <- c("median_income", "median_age", "proportion")
 #' covariates_matrix(test_data, covariates, "unit")
 #'
-#' @importFrom stats as.formula aggregate reshape
 #' @export
 covariates_matrix <- function(data, covariates, colname_unit) {
   if (missing(data) || missing(covariates) || missing(colname_unit)) {
@@ -204,12 +203,21 @@ covariates_matrix <- function(data, covariates, colname_unit) {
     stop("Missing values detected in covariate columns. Please impute them before proceeding.")
   }
 
-  # Aggregate using base R
-  formula_str <- as.formula(paste(". ~", colname_unit))
-  aggregated_df <- aggregate(formula_str, data = data[, c(colname_unit, covariates)], FUN = mean, na.rm = TRUE)
+  selected_df <- data[, c(covariates), drop = FALSE]
 
-  # Convert to matrix
-  return(as.matrix(aggregated_df))
+  # Step 3: Set unit ID as rownames
+  rownames(selected_df) <- selected_df[[colname_unit]]
+
+  # Step 4: Keep only covariate columns (drop unit ID)
+  selected_df <- selected_df[, covariates, drop = FALSE]
+
+  # Step 5: Convert all columns to numeric
+  selected_df[] <- lapply(selected_df, as.numeric)
+
+  # Step 6: Convert to matrix
+  covariates_mat <- as.matrix(selected_df)
+
+  return(covariates_mat)
 }
 
 
