@@ -11,13 +11,13 @@ covariates_matrix(data, covariates, colname_unit)
 
 \item{covariates}{A character vector specifying which covariate columns to extract.}
 
-\item{colname_unit}{A string specifying the name of the unit identifier column to group by.}
+\item{colname_unit}{A string specifying the name of the unit identifier column.}
 }
 \value{
-A numeric matrix of covariates aggregated by unit.
+A numeric matrix of covariates by unit.
 }
 \description{
-This function aggregates the specified covariate columns by the unit column
+This function specifies covariate columns by the unit column
 and returns them as a numeric matrix, excluding the unit identifier column.
 }
 \examples{
