@@ -87,6 +87,7 @@ reorder_unit_first <- function(data, unit_pattern) {
     bind_rows(filter(data, !grepl(unit_pattern, unit)))
 }
 
+
 #' Convert Data Frame to Get Outcome Matrix
 #'
 #' This function transforms a data frame into a numeric outcome matrix. It supports
@@ -162,7 +163,7 @@ outcome_matrix <- function(data, colname_outcome_var = NULL, colname_unit = NULL
 
 #' Extract Covariate Matrix (Z and X Matrix)
 #'
-#' This function specifies covariate columns by the unit column
+#' This function specifies covariates columns by the unit column
 #' and returns them as a numeric matrix, excluding the unit identifier column.
 #'
 #' @param data A data frame containing the covariates.
@@ -204,17 +205,9 @@ covariates_matrix <- function(data, covariates, colname_unit) {
   }
 
   selected_df <- data[, c(covariates), drop = FALSE]
-
-  # Step 3: Set unit ID as rownames
   rownames(selected_df) <- selected_df[[colname_unit]]
-
-  # Step 4: Keep only covariate columns (drop unit ID)
   selected_df <- selected_df[, covariates, drop = FALSE]
-
-  # Step 5: Convert all columns to numeric
   selected_df[] <- lapply(selected_df, as.numeric)
-
-  # Step 6: Convert to matrix
   covariates_mat <- as.matrix(selected_df)
 
   return(covariates_mat)

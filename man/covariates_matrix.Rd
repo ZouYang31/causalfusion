@@ -17,7 +17,7 @@ covariates_matrix(data, covariates, colname_unit)
 A numeric matrix of covariates by unit.
 }
 \description{
-This function specifies covariate columns by the unit column
+This function specifies covariates columns by the unit column
 and returns them as a numeric matrix, excluding the unit identifier column.
 }
 \examples{
