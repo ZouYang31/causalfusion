@@ -73,6 +73,8 @@ sensitivity_param <- function(eta_values, B,
     stop("F, Y, X, and Z must all be numeric matrices.")
   }
 
+  message("Starting sensitivity analysis over eta_X and eta_Z combinations...")
+
   eta_combinations <- expand.grid(eta_X = eta_values, eta_Z = eta_values)
 
   # Initialize a dataframe to store results
