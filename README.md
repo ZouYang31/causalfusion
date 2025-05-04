@@ -12,7 +12,7 @@ These methods overcome the limitations of conventional synthetic control by reco
 
 Each method encodes structural assumptions across domains and solves for synthetic control weights using constrained optimization with interpretable hyperparameters.
 
-📄 Read the full theory paper on arXiv: [arXiv:2410.16391](https://arxiv.org/abs/2410.16391)
+📄 Read the full theory paper on arXiv "Causal Data Fusion for Panel Data without Pre-Intervention Period": [arXiv:2410.16391](https://arxiv.org/abs/2410.16391)
 
 ---
 
@@ -28,8 +28,8 @@ You also need to download the gurobi package and license from gurobi website. Ac
 
 ```{r,eval=F}
 # Setup the gurobi function
-#Sys.setenv(GRB_LICENSE_FILE = "your_path_to_gurobi_license/gurobi.lic")
-#install.packages("/Library/gurobi1200/macos_universal2/R/gurobi_12.0-0_R_4.4.1.tgz", repos = NULL, type = "source")
+Sys.setenv(GRB_LICENSE_FILE = "your_path_to_gurobi_license/gurobi.lic")
+install.packages("/Library/gurobi1200/macos_universal2/R/gurobi_12.0-0_R_4.4.1.tgz", repos = NULL, type = "source")
 ```
 
 ---
