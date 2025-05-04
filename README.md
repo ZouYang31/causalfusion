@@ -221,7 +221,7 @@ placebo_test(B, F, Y, t_max, s_max, i_max = num_city,
 
 ```
 
-## Graphs
+## 📈 Graphs
 
 This project includes visualizations of synthetic control and equi-confounding results. All output graphs are stored in the `graphs/` directory.
 
