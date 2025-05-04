@@ -26,10 +26,11 @@ devtools::install_github("ZouYang31/causalfusion")
 ```
 You also need to download the gurobi package and license from gurobi website. Academic has free version license to use. 
 
+```{r,eval=F}
 # Setup the gurobi function
 #Sys.setenv(GRB_LICENSE_FILE = "your_path_to_gurobi_license/gurobi.lic")
 #install.packages("/Library/gurobi1200/macos_universal2/R/gurobi_12.0-0_R_4.4.1.tgz", repos = NULL, type = "source")
-
+```
 
 ---
 
@@ -38,10 +39,10 @@ You also need to download the gurobi package and license from gurobi website. Ac
 The package contains functions for data cleaning and generating the synthetic and negative control. 
 | Function  | Description
 |:---------|:----------|
-| `NSE_xl()` | This function calculates the normalized squared error (NSE) between a target unit and control units. |
+| `NSE_x()` | This function calculates the normalized squared error (NSE) between a target unit and control units. |
 | `optimize_w_ipop()` | Calculate the best possible NSEs for covariates. |
 | `optimize_w_b_gurobi_B_list()` | This function computes optimal synthetic control weights \code{w} by solving a constrained quadratic optimization problem using the \code{gurobi} solver. |
-| `find_best_B()` | This function searches over a list of candidate B parameter sets (weightings for domains F, X, and Z) to find the one that yields the lowest loss using the Gurobi-based optimizer.. |
+| `find_best_B()` | This function searches over a list of candidate B parameter sets (weightings for domains F, X, and Z) to find the one that yields the lowest loss using the Gurobi-based optimizer. |
 
 
 ## Usage Example
@@ -56,7 +57,7 @@ Data preprocessing
 df_tar <- panel_data[, c("unit", "month", "X1", "X2", "Y")]
 df_ref <- panel_data[, c("unit", "month", "Z1", "Z2", "Z3", "F")]
 
-# 2. Normalize the reference domain
+# 2. Normalize the covariates in both domains.
 df_tar <- normalize_columns(
   df_tar,
   c("X1","X2")
@@ -67,20 +68,20 @@ df_ref <- normalize_columns(
   c("Z1","Z2", "Z3")
 )
 
-# 3. reorder to target unit to the top 
+# 3. Reorder to target unit to the top.
 df_tar <- reorder_unit_first(df_tar, "unit_VV4Q")
 df_ref <- reorder_unit_first(df_ref, "unit_VV4Q")
 ```
 Next, we prepare for the matrix F, Y, Z, X. 
 ```{r,cache=T}
-# 4. get the covariates and outcome matrix
+# 4. Get the covariates and outcome matrix.
 F <- outcome_matrix(df_ref, colname_outcome_var = "F",
                     colname_unit = "unit", colname_time = "month")
 
 Y <- outcome_matrix(df_tar, colname_outcome_var = "Y",
                     colname_unit = "unit", colname_time = "month")
 
-# aggregate first
+# Aggregate covariates 
 Z_mean <- aggregate(cbind(Z1, Z2, Z3) ~ unit, data = panel_data, FUN = mean)
 
 Z <- covariates_matrix(Z_mean, c("Z1", "Z2", "Z3"), "unit")
@@ -92,13 +93,9 @@ X <- covariates_matrix(X_mean, c("X1", "X2"), "unit")
 
 Calculate the treated and control units
 ```{r,cache=T}
-# -------------------------------------
-# Extract Treated and Control Groups Returning Values
-# -------------------------------------
 i_max <- 20   # Total number of cities
 J <- i_max - 1 # Control units
 w <- rep(0, J)    # Initialize weight vector
-
 
 Y_treated <- Y[1, ]
 Y_control <- Y[2:(J + 1), ]
@@ -116,7 +113,6 @@ X_control <- X[2:(J + 1), ]
 t_max <- length(Y_treated)
 s_max <- length(F_treated)
 
-
 # Number of covariates in reference and target domains
 dr <- length(Z_treated)   # Reference domain covariates
 dt <- length(X_treated)  # Target domain covariates
@@ -129,7 +125,6 @@ result_X <- optimize_w_ipop(X = X, n_X = dt, i_max = num_city,
 
 wX <- result_X$weights
 NSE_X_baseline <- NSE_x(w = wX, F= F, X= X, Z= Z, t_max, dr, dt, i_max=num_city, target = "X")
-
 
 result_Z <- optimize_w_ipop(X = Z, n_X = dr, i_max = num_city,
                             margin.ipop = 1e-4, sigf.ipop = 5, bound.ipop = 10)
