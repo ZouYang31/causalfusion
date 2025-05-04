@@ -1,6 +1,6 @@
 Package: causalfusion
 Title: Causal Inference with Fusion Methods
-Version: 0.0.0.9000
+Version: 0.1.0
 Authors@R: 
     person("Zou", "Yang", email = "zoeyyang@bu.edu", role = c("aut", "cre"),
            comment = c("equal contribution"))
