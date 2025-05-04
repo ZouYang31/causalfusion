@@ -219,6 +219,7 @@ placebo_test(B, F, Y, t_max, s_max, i_max = num_city,
              Tunit_lab = c("Target Unit"),
              Cunit_lab = c("Control Units") )
 
+```
 
 ## Graphs
 
