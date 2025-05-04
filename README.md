@@ -225,8 +225,10 @@ placebo_test(B, F, Y, t_max, s_max, i_max = num_city,
 
 This project includes visualizations of synthetic control and equi-confounding results. All output graphs are stored in the `graphs/` directory.
 
-- `target_domain_plot.png`: Visualization of estimated outcomes and treatment effects in the target domain.
 - `reference_domain_plot.png`: Visualization of covariate balancing and synthetic fit for reference units.
+- `target_domain_plot.png`: Visualization of estimated outcomes and treatment effects in the target domain.
+- `reference_placebo_test_plot.png`: Visualization of estimated outcomes and treatment effects in the target domain.
+- `target_placebo_test_plot.png`: Visualization of covariate balancing and synthetic fit for reference units.
 
 ### Example: Synthetic Reference Domain Plot
 
