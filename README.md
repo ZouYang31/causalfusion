@@ -21,6 +21,13 @@ Each method encodes structural assumptions across domains and solves for synthet
 You can install the development version directly from GitHub:
 
 ```r
-# install.packages("devtools")
+# Install devtools if you haven't already
+install.packages("devtools")
+
+# Install causalfusion from GitHub
 devtools::install_github("ZouYang31/causalfusion")
 
+## 📚 Load the Package
+
+```r
+library(causalfusion)
