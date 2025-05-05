@@ -230,7 +230,7 @@ This project includes visualizations of synthetic control and equi-confounding r
 - `reference_placebo_test_plot.png`: Visualization of estimated outcomes and treatment effects in the target domain.
 - `target_placebo_test_plot.png`: Visualization of covariate balancing and synthetic fit for reference units.
 
-### Example: Synthetic Reference and Target Domain Plot
+### Example: Synthetic Reference and Target Domain Plots
 
 <p align="center">
   <img src="graphs/synth_reference_plot.png" alt="Synthetic Reference Domain Plot" width="45%" />
@@ -242,14 +242,17 @@ This project includes visualizations of synthetic control and equi-confounding r
   <b>Right:</b> Target Domain — Estimated outcome vs. synthetic counterfactual.
 </p>
 
-### Example: Reference Placebo Test Plot
+### Example: Reference and Target Placebo Test Plots
 
-![Placebo Test Reference Domain Plot](graphs/reference_placebo_test_plot.png)
+<p align="center">
+  <img src="graphs/reference_placebo_test_plot.png" alt="Reference Placebo Test Plot" width="45%" />
+  <img src="graphs/target_placebo_test_plot.png" alt="Target Placebo Test Plot" width="45%" />
+</p>
 
-
-### Example: Target Placebo Test Plot
-
-![Placebo Test Target Domain Plot](graphs/target_placebo_test_plot.png)
+<p align="center">
+  <b>Left:</b> Reference Domain — Placebo effects for control units.<br>
+  <b>Right:</b> Target Domain — True treated unit effect vs. placebo distribution.
+</p>
 
 
 
