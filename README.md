@@ -237,6 +237,10 @@ This project includes visualizations of synthetic control and equi-confounding r
   <img src="graphs/synthetic_target_plot.png" alt="Synthetic Target Domain Plot" width="45%" />
 </p>
 
+<p align="center">
+  <b>Left:</b> Reference Domain — Synthetic fit to control units.<br>
+  <b>Right:</b> Target Domain — Estimated outcome vs. synthetic counterfactual.
+</p>
 
 ### Example: Reference Placebo Test Plot
 
