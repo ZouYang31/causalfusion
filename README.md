@@ -238,8 +238,8 @@ This project includes visualizations of synthetic control and equi-confounding r
 </p>
 
 <p align="center">
-  <b>Left:</b> Reference Domain — Synthetic fit to control units.<br>
-  <b>Right:</b> Target Domain — Estimated outcome vs. synthetic counterfactual.
+  <b>Left:</b> Reference Domain <br>
+  <b>Right:</b> Target Domain
 </p>
 
 ### Example: Reference and Target Placebo Test Plots
@@ -250,8 +250,8 @@ This project includes visualizations of synthetic control and equi-confounding r
 </p>
 
 <p align="center">
-  <b>Left:</b> Reference Domain — Placebo effects for control units.<br>
-  <b>Right:</b> Target Domain — True treated unit effect vs. placebo distribution.
+  <b>Left:</b> Reference Domain <br>
+  <b>Right:</b> Target Domain
 </p>
 
 
