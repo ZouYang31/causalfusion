@@ -56,8 +56,8 @@ The `causalfusion` package provides a streamlined pipeline to generate synthetic
 ## Example Usage with real data
 Example datasets used for testing and demonstration are located in the `data/` folder. These include:
 
-- `final_transformed_data_20cities_v2.csv`: Yearly demographic and outcome data for 20 cities.
-- `monthly_covid_vaccination_rate_20cities_v2.csv`: Monthly COVID vaccination rates for the same cities.
+- `data/yearly_covariates_data_20cities.csv`: Yearly demographic and outcome data for 20 cities.
+- `data/monthly_covid_vaccination_data.csv`: Monthly COVID vaccination rates for the same cities.
 
 These files are used in the examples throughout the package and can be loaded using standard R functions:
 
