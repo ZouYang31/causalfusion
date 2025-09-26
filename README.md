@@ -1,4 +1,4 @@
-# causalfusion <img src="https://img.shields.io/badge/R-package-blue.svg" align="right" />
+# CausalPanelFusion <img src="https://img.shields.io/badge/R-package-blue.svg" align="right" />
 
 **CausalPanelFusion** is an R package for estimating causal effects when pre-intervention data in the target domain is missing or incomplete. It introduces **two data fusion methods** that leverage auxiliary panel data from related reference domains to estimate treatment effects in the target domain.
 
