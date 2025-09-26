@@ -10,7 +10,6 @@ These methods overcome the limitations of conventional synthetic control by reco
 - **Logarithmic Equi-Confounding**  
 - **Synthetic Control Data Fusion**
 
-Each method encodes structural assumptions across domains and solves for synthetic control weights using constrained optimization with interpretable hyperparameters.
 
 📄 Read the full theory paper on arXiv: [Causal Data Fusion for Panel Data without Pre-intervention Period](https://arxiv.org/abs/2410.16391)
 
