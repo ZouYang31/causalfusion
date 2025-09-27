@@ -9,7 +9,7 @@ These methods overcome the limitations of conventional synthetic control by reco
 - **Equi-Confounding Data Fusion**   
 - **Synthetic Control Data Fusion**
 
-📄 Read the full theory paper on arXiv: [Causal Data Fusion for Panel Data without Pre-intervention Period](https://arxiv.org/abs/2410.16391)
+📄 Read the full theory paper on arXiv: [Causal Data Fusion for Panel Data without a Pre-intervention Period](https://arxiv.org/abs/2410.16391)
 
 ---
 
