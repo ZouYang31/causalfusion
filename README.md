@@ -1,15 +1,15 @@
 # CausalPanelFusion <img src="https://img.shields.io/badge/R-package-blue.svg" align="right" />
 
-**CausalPanelFusion** is an R package for estimating causal effects when pre-intervention data in the target domain is missing or incomplete. It introduces **two data fusion methods** that leverage auxiliary panel data from related reference domains to estimate treatment effects in the target domain.
+**CausalPanelFusion** is an R package for estimating causal effects when pre-intervention data in the target domain is not available. It contains **two data fusion methods** that leverage auxiliary panel data from related reference domains to estimate treatment effects in the target domain.
 
-These methods overcome the limitations of conventional synthetic control by recovering counterfactual outcomes even in the absence of pre-treatment information.
+Unlike the conventional panel data methods, our proposed methods can recover counterfactual outcomes even in the absence of pre-intervention data in the target domain.
 
 ### 🔍 Included Methods
 
 - **Equi-Confounding Data Fusion**   
 - **Synthetic Control Data Fusion**
 
-📄 Read the full theory paper on arXiv: [Causal Data Fusion for Panel Data without a Pre-intervention Period](https://arxiv.org/abs/2410.16391)
+📄 Read the full paper on arXiv: [Causal Data Fusion for Panel Data without a Pre-intervention Period](https://arxiv.org/abs/2410.16391)
 
 ---
 
